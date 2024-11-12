@@ -1,6 +1,5 @@
 import { Gameboard } from "./gameboard.js";
 import { Ship } from "./ship.js";
-import { log } from "console";
 
 describe("Placing ships", () => {
 	const gameboard = new Gameboard();
