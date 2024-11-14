@@ -53,6 +53,10 @@ body {
 	align-items: center;
 }
 
+.cell.ship {
+	background-color: grey;
+}
+
 /* .player,
 .opponent {
 	justify-self: center;

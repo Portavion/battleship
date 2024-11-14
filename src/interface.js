@@ -2,7 +2,7 @@ function createGrid(player) {
 	const resolution = 121;
 	let container;
 
-	if (player.playerType === "human") {
+	if (player.number === 1) {
 		container = document.querySelector(".player");
 	} else {
 		container = document.querySelector(".opponent");
@@ -28,7 +28,7 @@ function createGrid(player) {
 
 function cleanGrid(player) {
 	let container;
-	if (player.playerType === "human") {
+	if (player.number === 1) {
 		container = document.querySelector(".player");
 	} else {
 		container = document.querySelector(".opponent");
@@ -39,7 +39,7 @@ function cleanGrid(player) {
 function addCoordinate(player) {
 	let container;
 
-	if (player.playerType === "human") {
+	if (player.number === 1) {
 		container = document.querySelector(".player");
 	} else {
 		container = document.querySelector(".opponent");
@@ -60,4 +60,29 @@ function addCoordinate(player) {
 	}
 }
 
-export { createGrid };
+function drawShip(player) {
+	let gameboard = player.Gameboard;
+	let fleet = [
+		gameboard.carrier,
+		gameboard.battleship,
+		gameboard.cruiser,
+		gameboard.submarine,
+		gameboard.destroyer,
+	];
+	let container = document.querySelector(".player");
+
+	for (let ship in fleet) {
+		let currentShip = fleet[ship];
+		for (let coordinates in currentShip.coordinates) {
+			let currentCoordinates = currentShip.coordinates[coordinates];
+			let cell = container.querySelector(
+				"#" +
+					String.fromCharCode(currentCoordinates[0] + 96) +
+					currentCoordinates[1]
+			);
+			cell.classList.add("ship");
+		}
+	}
+}
+
+export { createGrid, drawShip };
