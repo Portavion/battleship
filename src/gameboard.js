@@ -9,6 +9,7 @@ class Gameboard {
 		this.destroyer = new Ship(2);
 
 		this.missedShot = [];
+		this.hitShot = [];
 	}
 
 	receiveAttack(x, y) {
@@ -19,6 +20,9 @@ class Gameboard {
 			this.submarine,
 			this.destroyer,
 		];
+		x = Number(x);
+		y = Number(y);
+
 		for (let ship in fleet) {
 			let currentShip = fleet[ship];
 			for (let coordinate in currentShip.coordinates) {
@@ -27,11 +31,13 @@ class Gameboard {
 					y == currentShip.coordinates[coordinate][1]
 				) {
 					currentShip.hit();
+					this.hitShot.push([x, y]);
 					return;
 				}
 			}
 		}
-		this.missedShot.push([x, y]); // TODO: sort the missedShot automatically?
+		this.missedShot.push([x, y]);
+		// TODO: sort the missedShot automatically?
 	}
 
 	checkAllSunk() {
@@ -49,6 +55,7 @@ class Gameboard {
 				return false;
 			}
 		}
+		console.log("finished");
 		return true;
 	}
 }

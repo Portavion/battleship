@@ -18,12 +18,34 @@ function createGrid(player) {
 			pixels[i].id = "x" + (i % 11);
 		} else {
 			pixels[i].id = String.fromCharCode(i / 11 + 96) + (i % 11);
+			if (player.number === 2) {
+				pixels[i].addEventListener("click", function (event) {
+					sendAttack(event, player);
+				});
+			}
 		}
 		pixels[i].style.flex = `1 1 ${100 / Math.sqrt(resolution) - 1}%`;
-
 		container.appendChild(pixels[i]);
 	}
 	addCoordinate(player);
+	for (let shot in player.Gameboard.missedShot) {
+		let currentCoordinates = player.Gameboard.missedShot[shot];
+		let cell = container.querySelector(
+			"#" +
+				String.fromCharCode(currentCoordinates[1] + 96) +
+				currentCoordinates[0]
+		);
+		cell.classList.add("missed");
+	}
+	for (let shot in player.Gameboard.hitShot) {
+		let currentCoordinates = player.Gameboard.hitShot[shot];
+		let cell = container.querySelector(
+			"#" +
+				String.fromCharCode(currentCoordinates[1] + 96) +
+				currentCoordinates[0]
+		);
+		cell.classList.add("hit");
+	}
 }
 
 function cleanGrid(player) {
@@ -77,12 +99,20 @@ function drawShip(player) {
 			let currentCoordinates = currentShip.coordinates[coordinates];
 			let cell = container.querySelector(
 				"#" +
-					String.fromCharCode(currentCoordinates[0] + 96) +
-					currentCoordinates[1]
+					String.fromCharCode(currentCoordinates[1] + 96) +
+					currentCoordinates[0]
 			);
 			cell.classList.add("ship");
 		}
 	}
+}
+
+function sendAttack(event, player) {
+	let y = event.target.id.charCodeAt(0) - 96;
+	let x = event.target.id.slice(1);
+	console.log(x + y);
+	player.Gameboard.receiveAttack(x, y);
+	createGrid(player);
 }
 
 export { createGrid, drawShip };

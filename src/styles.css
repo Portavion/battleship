@@ -57,6 +57,14 @@ body {
 	background-color: grey;
 }
 
+.cell.missed {
+	background-color: lightblue;
+}
+
+.cell.hit {
+	background-color: lightcoral;
+}
+
 /* .player,
 .opponent {
 	justify-self: center;
