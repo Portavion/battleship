@@ -31,7 +31,8 @@ body {
 	background-color: white;
 }
 
-.player {
+.player,
+.opponent {
 	background-color: grey;
 	display: flex;
 	flex-wrap: wrap;

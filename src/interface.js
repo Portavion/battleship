@@ -1,8 +1,16 @@
-function createGrid() {
+function createGrid(player) {
 	const resolution = 121;
-	let container = document.querySelector(".player");
+	let container;
+
+	if (player.playerType === "human") {
+		container = document.querySelector(".player");
+	} else {
+		container = document.querySelector(".opponent");
+	}
 	let pixels = [];
-	cleanGrid();
+
+	cleanGrid(player);
+
 	for (let i = 0; i < resolution; i++) {
 		pixels.push(document.createElement("div"));
 		pixels[i].className = "cell";
@@ -15,26 +23,37 @@ function createGrid() {
 
 		container.appendChild(pixels[i]);
 	}
-	addCoordinate();
+	addCoordinate(player);
 }
 
-function cleanGrid() {
-	let container = document.querySelector(".player");
+function cleanGrid(player) {
+	let container;
+	if (player.playerType === "human") {
+		container = document.querySelector(".player");
+	} else {
+		container = document.querySelector(".opponent");
+	}
 	container.innerHTML = "";
 }
 
-function addCoordinate() {
-	let container = document.querySelector(".player");
+function addCoordinate(player) {
+	let container;
+
+	if (player.playerType === "human") {
+		container = document.querySelector(".player");
+	} else {
+		container = document.querySelector(".opponent");
+	}
 
 	for (let i = 0; i < 11; i++) {
-		let cell = document.querySelector("#x" + i);
+		let cell = container.querySelector("#x" + i);
 		if (i > 0) {
 			cell.textContent = i;
 		}
 	}
 
 	for (let i = 0; i < 10; i++) {
-		let cell = document.querySelector(
+		let cell = container.querySelector(
 			"#" + String.fromCharCode(97 + i) + 0
 		);
 		cell.textContent = String.fromCharCode(97 + i);
