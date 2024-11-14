@@ -19,33 +19,24 @@ function createGrid(player) {
 		} else {
 			pixels[i].id = String.fromCharCode(i / 11 + 96) + (i % 11);
 			if (player.number === 2) {
-				pixels[i].addEventListener("click", function (event) {
-					sendAttack(event, player);
-				});
+				let id = String.fromCharCode(i / 11 + 96) + (i % 11);
+				let y = Number(id.charCodeAt(0) - 96);
+				let x = Number(id.slice(1));
+				// console.log(x, y);
+				if (!player.Gameboard.checkPlayed([x, y])) {
+					pixels[i].addEventListener("click", function (event) {
+						sendAttack(event, player);
+					});
+				}
 			}
 		}
 		pixels[i].style.flex = `1 1 ${100 / Math.sqrt(resolution) - 1}%`;
 		container.appendChild(pixels[i]);
 	}
+
 	addCoordinate(player);
-	for (let shot in player.Gameboard.missedShot) {
-		let currentCoordinates = player.Gameboard.missedShot[shot];
-		let cell = container.querySelector(
-			"#" +
-				String.fromCharCode(currentCoordinates[1] + 96) +
-				currentCoordinates[0]
-		);
-		cell.classList.add("missed");
-	}
-	for (let shot in player.Gameboard.hitShot) {
-		let currentCoordinates = player.Gameboard.hitShot[shot];
-		let cell = container.querySelector(
-			"#" +
-				String.fromCharCode(currentCoordinates[1] + 96) +
-				currentCoordinates[0]
-		);
-		cell.classList.add("hit");
-	}
+	addMissedShots(player);
+	addHitShots(player);
 }
 
 function cleanGrid(player) {
@@ -82,6 +73,33 @@ function addCoordinate(player) {
 	}
 }
 
+function addMissedShots(player) {
+	let container = document.querySelector(".opponent");
+	for (let shot in player.Gameboard.missedShot) {
+		let currentCoordinates = player.Gameboard.missedShot[shot];
+		let cell = container.querySelector(
+			"#" +
+				String.fromCharCode(currentCoordinates[1] + 96) +
+				currentCoordinates[0]
+		);
+		cell.classList.add("missed");
+	}
+}
+
+function addHitShots(player) {
+	let container = document.querySelector(".opponent");
+
+	for (let shot in player.Gameboard.hitShot) {
+		let currentCoordinates = player.Gameboard.hitShot[shot];
+		let cell = container.querySelector(
+			"#" +
+				String.fromCharCode(currentCoordinates[1] + 96) +
+				currentCoordinates[0]
+		);
+		cell.classList.add("hit");
+	}
+}
+
 function drawShip(player) {
 	let gameboard = player.Gameboard;
 	let fleet = [
@@ -108,11 +126,15 @@ function drawShip(player) {
 }
 
 function sendAttack(event, player) {
-	let y = event.target.id.charCodeAt(0) - 96;
-	let x = event.target.id.slice(1);
-	console.log(x + y);
+	let y = Number(event.target.id.charCodeAt(0) - 96);
+	let x = Number(event.target.id.slice(1));
+
 	player.Gameboard.receiveAttack(x, y);
+
 	createGrid(player);
+	if (player.Gameboard.checkAllSunk()) {
+		console.log("all sunk");
+	}
 }
 
 export { createGrid, drawShip };

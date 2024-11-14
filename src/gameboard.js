@@ -37,7 +37,6 @@ class Gameboard {
 			}
 		}
 		this.missedShot.push([x, y]);
-		// TODO: sort the missedShot automatically?
 	}
 
 	checkAllSunk() {
@@ -55,8 +54,24 @@ class Gameboard {
 				return false;
 			}
 		}
-		console.log("finished");
 		return true;
+	}
+
+	checkPlayed(coord) {
+		for (let shot in this.missedShot) {
+			if (coord[0] === this.missedShot[shot][0]) {
+				if (coord[1] === this.missedShot[shot][1]) {
+					return true;
+				}
+			}
+		}
+		for (let shot in this.hitShot) {
+			if (coord[0] === this.hitShot[shot][0]) {
+				if (coord[1] === this.hitShot[shot][1]) {
+					return true;
+				}
+			}
+		}
 	}
 }
 
