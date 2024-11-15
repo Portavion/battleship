@@ -2,15 +2,14 @@ import "./styles.css";
 import { Ship } from "./ship";
 import { Gameboard } from "./gameboard";
 import { Player, placeShip } from "./player";
-import { createGrid, drawShip } from "./interface";
+import { createGrids, drawShip, playerTurn, computerTurn } from "./interface";
 
-const humanPlayer = new Player(1);
-const computer = new Player(2);
+const humanPlayer = new Player("player");
+const computer = new Player("computer");
 
 humanPlayer.placeShip();
 computer.placeShip();
 
-createGrid(humanPlayer);
-createGrid(computer);
-
-drawShip(humanPlayer);
+createGrids([humanPlayer, computer]);
+playerTurn();
+// drawShip(humanPlayer);

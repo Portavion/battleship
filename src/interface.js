@@ -1,50 +1,73 @@
-function createGrid(player) {
+function createGrids(players) {
+	if (players[0].lost === true || players[1].lost === true) {
+		return;
+	}
 	const resolution = 121;
 	let container;
 
-	if (player.number === 1) {
-		container = document.querySelector(".player");
-	} else {
-		container = document.querySelector(".opponent");
-	}
-	let pixels = [];
+	const computerBoard = document.querySelector(".computer");
+	if (players[0].lost === false && players[1].lost === false) {
+		for (let j in players) {
+			let player = players[j];
 
-	cleanGrid(player);
+			if (player.name === "player") {
+				container = document.querySelector(".player");
+			} else {
+				container = document.querySelector(".computer");
+			}
+			let pixels = [];
 
-	for (let i = 0; i < resolution; i++) {
-		pixels.push(document.createElement("div"));
-		pixels[i].className = "cell";
-		if (i < 11) {
-			pixels[i].id = "x" + (i % 11);
-		} else {
-			pixels[i].id = String.fromCharCode(i / 11 + 96) + (i % 11);
-			if (player.number === 2) {
-				let id = String.fromCharCode(i / 11 + 96) + (i % 11);
-				let y = Number(id.charCodeAt(0) - 96);
-				let x = Number(id.slice(1));
-				// console.log(x, y);
-				if (!player.Gameboard.checkPlayed([x, y])) {
-					pixels[i].addEventListener("click", function (event) {
-						sendAttack(event, player);
-					});
+			cleanGrid(player);
+
+			for (let i = 0; i < resolution; i++) {
+				pixels.push(document.createElement("div"));
+				pixels[i].className = "cell";
+				if (i < 11) {
+					pixels[i].id = "x" + (i % 11);
+				} else {
+					pixels[i].id = String.fromCharCode(i / 11 + 96) + (i % 11);
+					if (player.name === "computer") {
+						let id = String.fromCharCode(i / 11 + 96) + (i % 11);
+						let y = Number(id.charCodeAt(0) - 96);
+						let x = Number(id.slice(1));
+						// console.log(x, y);
+						if (!player.Gameboard.checkPlayed([x, y])) {
+							pixels[i].addEventListener(
+								"click",
+								function (event) {
+									sendAttack(event, players);
+								}
+							);
+							pixels[i].addEventListener(
+								"click",
+								function (event) {
+									computerAttack(players[1], players[0]);
+								}
+							);
+						}
+					}
 				}
+				pixels[i].style.flex = `1 1 ${
+					100 / Math.sqrt(resolution) - 1
+				}%`;
+				container.appendChild(pixels[i]);
+			}
+			addCoordinate(player);
+			addMissedShots(player);
+			addHitShots(player);
+			if (player.name === "player") {
+				drawShip(player);
 			}
 		}
-		pixels[i].style.flex = `1 1 ${100 / Math.sqrt(resolution) - 1}%`;
-		container.appendChild(pixels[i]);
 	}
-
-	addCoordinate(player);
-	addMissedShots(player);
-	addHitShots(player);
 }
 
 function cleanGrid(player) {
 	let container;
-	if (player.number === 1) {
+	if (player.name === "player") {
 		container = document.querySelector(".player");
 	} else {
-		container = document.querySelector(".opponent");
+		container = document.querySelector(".computer");
 	}
 	container.innerHTML = "";
 }
@@ -52,10 +75,10 @@ function cleanGrid(player) {
 function addCoordinate(player) {
 	let container;
 
-	if (player.number === 1) {
+	if (player.name === "player") {
 		container = document.querySelector(".player");
 	} else {
-		container = document.querySelector(".opponent");
+		container = document.querySelector(".computer");
 	}
 
 	for (let i = 0; i < 11; i++) {
@@ -74,7 +97,7 @@ function addCoordinate(player) {
 }
 
 function addMissedShots(player) {
-	let container = document.querySelector(".opponent");
+	let container = document.querySelector("." + player.name);
 	for (let shot in player.Gameboard.missedShot) {
 		let currentCoordinates = player.Gameboard.missedShot[shot];
 		let cell = container.querySelector(
@@ -87,7 +110,7 @@ function addMissedShots(player) {
 }
 
 function addHitShots(player) {
-	let container = document.querySelector(".opponent");
+	let container = document.querySelector("." + player.name);
 
 	for (let shot in player.Gameboard.hitShot) {
 		let currentCoordinates = player.Gameboard.hitShot[shot];
@@ -125,16 +148,88 @@ function drawShip(player) {
 	}
 }
 
-function sendAttack(event, player) {
+function sendAttack(event, players) {
+	let player = players[1];
 	let y = Number(event.target.id.charCodeAt(0) - 96);
 	let x = Number(event.target.id.slice(1));
 
 	player.Gameboard.receiveAttack(x, y);
 
-	createGrid(player);
-	if (player.Gameboard.checkAllSunk()) {
-		console.log("all sunk");
+	if (players[1].Gameboard.checkAllSunk()) {
+		players[1].lost = true;
+		announcement("computer");
+		return;
+	}
+	if (!players[0].lost && !players[1].lost) {
+		createGrids(players);
 	}
 }
 
-export { createGrid, drawShip };
+function playerTurn() {
+	let instructionBlock = document.querySelector(".instruction");
+	instructionBlock.innerHTML = "Your Turn";
+}
+
+function computerTurn() {
+	let instructionBlock = document.querySelector(".instruction");
+	instructionBlock.innerHTML = "Computer is thinking...";
+}
+
+function computerAttack(computerPlayer, humanPlayer) {
+	let alreadyPlayed = true;
+	let x;
+	let y;
+
+	const computerDiv = document.querySelector(".computer");
+	computerDiv.style.pointerEvents = "none";
+	if (computerPlayer.lost === true || humanPlayer.lost === true) {
+		return;
+	}
+	computerTurn();
+
+	while (alreadyPlayed === true) {
+		x = Math.floor(Math.random() * 10 + 1);
+		y = Math.floor(Math.random() * 10 + 1);
+		alreadyPlayed = humanPlayer.Gameboard.checkPlayed([x, y]);
+	}
+
+	humanPlayer.Gameboard.receiveAttack(x, y);
+
+	sleep(100).then(() => {
+		createGrids([humanPlayer, computerPlayer]);
+
+		if (humanPlayer.Gameboard.checkAllSunk()) {
+			humanPlayer.lost = true;
+			announcement("human");
+
+			return;
+		}
+		sleep(100).then(() => {
+			if (humanPlayer.lost === true) {
+				return;
+			}
+			playerTurn();
+
+			computerDiv.style.pointerEvents = "auto";
+		});
+	});
+}
+
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function announcement(loser) {
+	document.querySelector(".player").innerHTML = "";
+	document.querySelector(".computer").innerHTML = "";
+
+	let instructionBlock = document.querySelector(".instruction");
+
+	if (loser === "human") {
+		instructionBlock.innerHTML = "You lost...";
+	} else {
+		instructionBlock.innerHTML = "You WIN!";
+	}
+}
+
+export { createGrids, drawShip, playerTurn, computerTurn, announcement };

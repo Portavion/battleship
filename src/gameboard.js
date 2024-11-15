@@ -10,6 +10,7 @@ class Gameboard {
 
 		this.missedShot = [];
 		this.hitShot = [];
+		this.lost = false;
 	}
 
 	receiveAttack(x, y) {
@@ -54,6 +55,7 @@ class Gameboard {
 				return false;
 			}
 		}
+		this.lost = true;
 		return true;
 	}
 
